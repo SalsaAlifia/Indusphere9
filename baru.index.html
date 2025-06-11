@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebGIS InduSphere</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
+  <!-- Leaflet Libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
+  
+  <style>
+    /* ===== GLOBAL STYLES ===== */
+    :root {
+      --primary: #1c1f2a;
+      --secondary: #2c2f3a;
+      --accent: #fc6a03;
+      --text-light: #e0e0e0;
+      --text-lighter: #b0bec5;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1c1f2a;
+      color: #ffffff;
+      scroll-behavior: smooth;
+    }
+    
+    section {
+      padding: 80px 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    
+    .btn-orange {
+      background-color: #fc6a03;
+      color: white;
+      border: none;
+    }
+    
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    h1, h2, h3 {
+      font-weight: 700;
+    }
+    
+    .white {
+      color: white;
+    }
+    
+    .orange {
+      color: #fc6a03;
+    }
+    
+    /* ===== NAVBAR ===== */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 15px 0;
+      background: rgba(28, 31, 42, 0.9);
+      backdrop-filter: blur(10px);
+    }
+    
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .nav-links li {
+      display: inline-block;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 6px 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-links a:hover {
+      color: #fc6a03;
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 5px;
+    }
+    
+    .back-button {
+      color: #fc6a03;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 15px;
+      border-radius: 5px;
+      background: rgba(252, 106, 3, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+      background: rgba(252, 106, 3, 0.2);
+    }
+    
+    /* ===== HERO SECTION ===== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('./asset/wb.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+    }
+    
+    .hero-icon {
+      margin-bottom: 25px;
+    }
+    
+    .hero-icon img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #fc6a03;
+    }
+    
+    .hero-title {
+      font-size: 48px;
+      font-weight: 700;
+      margin: 10px 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      color: #cfd8dc;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+    .hero-buttons {
+      margin-top: 30px;
+    }
+    
+    /* ===== INTRO SECTION ===== */
+    .section-intro {
+      background-color: #1c1f2a;
+    }
+    
+    .intro-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .intro-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .intro-subtitle {
+      font-size: 18px;
+      color: #b0bec5;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+    
+    .intro-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      text-align: left;
+    }
+    
+    .intro-image {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .intro-text {
+      max-width: 600px;
+    }
+    
+    .text-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+    
+    .text-paragraph {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      margin-bottom: 20px;
+    }
+    
+    /* ===== FEATURES SECTION ===== */
+    .features-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      background-color: #2c2f3a;
+      padding: 30px 20px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    .feature-icon {
+      font-size: 36px;
+      color: #fc6a03;
+      margin-bottom: 15px;
+    }
+    
+    .feature-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .feature-text {
+      font-size: 15px;
+      color: #cfd8dc;
+      line-height: 1.6;
+    }
+    
+    /* ===== HIGHLIGHT SECTION ===== */
+    .highlight-box {
+      background-color: #2c2f3a;
+      padding: 40px 20px;
+      border-radius: 12px;
+      margin: 40px auto;
+      max-width: 800px;
+    }
+    
+    .highlight-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .highlight-icon {
+      font-size: 40px;
+      color: #fc6a03;
+      margin-bottom: 10px;
+    }
+    
+    .highlight-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fc6a03;
+      margin: 0;
+    }
+    
+    .highlight-label {
+      font-size: 16px;
+      color: #e0e0e0;
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+    
+    /* ===== MAP SECTION ===== */
+    .map-section {
+      background-color: #1c1f2a;
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+    
+    .map-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .map-heading h1 {
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+    
+    .subheading {
+      font-size: 18px;
+      color: #b0bec5;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .map-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+    }
+    
+    .coordinate-box {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      z-index: 1000;
+      font-size: 14px;
+    }
+    
+    #map {
+      height: 500px;
+      width: 100%;
+      z-index: 1;
+    }
+    
+    /* ===== INFO SECTION ===== */
+    .informasi {
+      background-color: #1c1f2a;
+      padding-top: 0;
+    }
+    
+    .info-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .info-box {
+      background-color: #2c2f3a;
+      padding: 25px;
+      border-radius: 12px;
+      width: 330px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .info-icon {
+      font-size: 30px;
+      color: #fc6a03;
+      margin-bottom: 15px;
+    }
+    
+    .info-box h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .info-box p {
+      font-size: 15px;
+      color: #cfd8dc;
+      line-height: 1.6;
+    }
+    
+    /* ===== FOOTER SECTION ===== */
+    .footer-section {
+      background-color: #1c1f2a;
+      padding: 60px 20px 30px;
+      color: #e0e0e0;
+    }
+    
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+    
+    .footer-left {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .footer-left h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .footer-left p {
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    
+    .social-icons {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-icons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #2c2f3a;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .social-icons a:hover {
+      background: #fc6a03;
+      transform: translateY(-3px);
+    }
+    
+    .footer-links {
+      min-width: 180px;
+    }
+    
+    .footer-links h4 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: #b0bec5;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #fc6a03;
+      padding-left: 5px;
+    }
+    
+    .footer-contact {
+      min-width: 250px;
+    }
+    
+    .footer-contact h4 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .footer-contact p {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    hr {
+      border: none;
+      height: 1px;
+      background: #2c2f3a;
+      margin: 20px 0;
+    }
+    
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .creator-info {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .creator-info h4 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: white;
+    }
+    
+    .label {
+      font-weight: 600;
+      color: #fc6a03;
+      margin-bottom: 5px;
+    }
+    
+    .name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: white;
+    }
+    
+    .role {
+      color: #b0bec5;
+      margin-bottom: 15px;
+    }
+    
+    .desc {
+      line-height: 1.6;
+    }
+    
+    .tech-stack {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .stack-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .stack-list span {
+      background: #2c2f3a;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    
+    .pembuat-foto {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #fc6a03;
+      margin-top: 15px;
+    }
+    
+    /* ===== MAP LEGEND ===== */
+  .legend {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  color: #333;
+  max-width: 200px;   /* Batasi lebar maksimal */
+}
+
+.legend h4 {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.legend i {
+  width: 14px;
+  height: 14px;
+  float: left;
+  margin-right: 6px;
+  opacity: 0.7;
+}
+
+    
+    /* ===== RESPONSIVE ADJUSTMENTS ===== */
+    @media (max-width: 768px) {
+      .nav-links {
+        gap: 15px;
+      }
+      
+      .hero-title {
+        font-size: 36px;
+      }
+      
+      .hero-subtitle {
+        font-size: 16px;
+      }
+      
+      .intro-content {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .info-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .info-box {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ✅ Navbar -->
+  <header>
+    <nav class="navbar">
+      <ul class="nav-links">
+        <li><a href="#home">Beranda</a></li>
+        <li><a href="#map-section">Peta</a></li>
+        <li><a href="#footer-section">Tentang</a></li>
+        <a href="#home" class="back-button">← Kembali ke Beranda</a>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ✅ Hero Section -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-icon">
+          <img src="./asset/industri.jpg" alt="Industrial Icon" />
+        </div>
+        <h1 class="hero-title">WebGIS <span class="orange">InduSphere</span></h1>
+        <p class="hero-subtitle">
+          Platform Geographic Information System untuk monitoring dan analisis data industri secara real-time
+        </p>
+        <div class="hero-buttons">
+          <a href="#eksplorasi" class="btn btn-orange">▶ Mulai Eksplorasi</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= LATAR BELAKANG ======= -->
+  <section class="section-intro" id="eksplorasi">
+    <div class="container">
+      <h2 class="intro-title">Pengenalan <span class="orange">WebGIS</span></h2>
+      <p class="intro-subtitle">Memahami konsep dan fungsi GIS berbasis web untuk kebutuhan industri modern</p>
+
+      <div class="intro-content">
+        <img src="./asset/scg.jpg" alt="WebGIS Image" class="intro-image">
+        <div class="intro-text">
+          <h3 class="text-title">Apa itu INDUSPHERE?</h3>
+          <p class="text-paragraph">
+            Di tengah pesatnya perkembangan industri saat ini, informasi geospasial memegang peranan penting dalam pengambilan keputusan, khususnya yang berkaitan dengan isu lingkungan dan tata ruang. 
+            Sebaran kawasan industri yang kerap kali berdekatan dengan pemukiman penduduk menuntut adanya sistem informasi yang mampu menyajikan visualisasi lokasi industri, mengidentifikasi potensi risiko, serta memberikan rekomendasi berdasarkan data spasial.
+          </p>
+          <p class="text-paragraph">
+            WebGIS InduSpere adalah platform berbasis teknologi Geographic Information System (GIS) dalam bentuk web, berperan dalam memberikan infomrasi tentang industri seseuai dengan
+            asal usul namanya yaitu "Indu"= Industri dan "Sphere/Shpaera"= ruang lingkup. Dari definisi tersebut maka WebGIS ini dirancang 
+            untuk membantu masyarakat khusunya risiko pabrik berdasarkan catatan pencemaran, kedekatan dengan lingkungan, serta mempertimbangkan 
+            parameter kepadatan penduduk untuk dijadikan acuan atau rekomendasi pengambilan keputusan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= MANFAAT ======= -->
+  <section class="section-intro">
+    <div class="container">
+      <h3 class="text-title" style="text-align: center; margin-bottom: 30px;">MANFAAT</h3>
+      <div class="features-container">
+        <div class="feature-card">
+          <div class="feature-icon">🌍</div>
+          <h3 class="feature-title">Visualisasi Data Representatif</h3>
+          <p class="feature-text">Persebaran pabrik menjadi informasi penting mengingat dampaknya terhadap lingkungan sekitar yang berdampingan dengan masyarakat.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📈</div>
+          <h3 class="feature-title">Wawasan & Pengambilan Keputusan</h3>
+          <p class="feature-text">Analisis spasial memberikan rekomendasi berbasis data kepada pembuat kebijakan dan masyarakat.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3 class="feature-title">Efektivitas</h3>
+          <p class="feature-text">WebGIS ini membantu mencari solusi efisien dalam penanganan pencemaran industri.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= HIGHLIGHT SECTION ======= -->
+
+  <section class="section-intro">
+    <div class="container">
+      <div class="highlight-box">
+        <div class="highlight-content">
+          <div class="highlight-icon">🏭</div>
+          <h3 class="highlight-number">Kota Kecil Yang Padat</h3>
+          <p class="highlight-label">
+            Merujuk pada dokumen Peraturan Daerah Nomor 1 Tahun 2022 bahwa pemerintah ikut mengatur
+            dan memantau terhadap pembangunan gedung tinggi, sehingga rata-rata industri yang berada di wilayah in berskala menengah 
+            mempertimbangkan dari kondisi fisik wilayah. Akan tetapi pada faktanya, industri semakin terus bertambah terutama 
+            industri makanan & minuman karena dinilai sumber daya air yang masih baik. Perlu diingat bahwa 
+       dampak yang dirasakan masih ada, ditambah dengan industri besar yang berada di wilayah sekitarnya turut 
+            memberikan pengaruh kepada kota Sukabumi.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= MAP SECTION ======= -->
+  <section class="map-section" id="map-section">
+    <div class="container">
+      <div class="map-heading">
+        <h1><span class="white">Peta</span> <span class="orange">Interaktif</span></h1>
+        <p class="subheading">
+          Jelajahi data geografis dengan kontrol navigasi lengkap dan layer<br />
+          informasi yang dapat disesuaikan
+        </p>
+      </div>
+
+      <div class="map-container">
+        <div class="coordinate-box">
+          Koordinat: <span id="koordinat">-6.9180, 106.9250</span>
+        </div>
+        <div id="map"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= INFO SECTION ======= -->
+  <section class="informasi" id="informasi">
+    <div class="container">
+      <div class="info-container">
+        <div class="info-box">
+          <div class="info-icon">🌊</div>
+          <h3>Daftar Kasus Tercatat Pencemaran Pabrik</h3>
+          <p>PT. Golden Pricindo Indah mencemari sawah dan sungai Cipari di Desa Cihaur yang membuat petani gagal panen. (Detikjabar, 2025).</p>
+          <p>2. Pabrik Aci di Kecamatan Gunung Guruh membuang limbah tanpa IPAL. (DLH Kab. Sukabumi, 2024).</p>
+          <p>3. PT Clariant Adsorbent Indonesia sebuah pabrik penghasil bentonit mengaku telah membuang limbah ke sungai CIkaso</p>
+        </div>
+        <div class="info-box">
+          <div class="info-icon">🏭</div>
+          <h3>Klasterisasi Kecamatan Berdasarkan Pengaruh Industri</h3>
+          <p>Zona kawasan pabrik: 0–1500 m</p>
+          <p>Zona menengah: 1500–3500 m </p>
+          <p>Zona bebas: >5500 m</p>
+        </div>
+        <div class="info-box">
+          <div class="info-icon">🏠</div>
+          <h3>Pengaruh Kedekatan Pabrik dengan Lingkungan Masyarakat</h3>
+          <p>Kecamatan Warudoyong dan Cikole memiliki kepadatan penduduk yang tinggi sekitar > 6000 jiwa/km2 
+            lalu berada dalam jarak yang cukup dekat dengan kawasan industri, sehingga risiko yang diterima masih cukup besar untuk 
+            dirasakan, infomrasi ini sebagai langkah awal masyarakat dan pemerintah untuk lebih antisipasi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FOOTER SECTION ======= -->
+  <footer class="footer-section" id="footer-section">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-left">
+          <h3><span class="footer-icon">📍</span> WebGIS <span class="orange">InduShpere</span></h3>
+          <p>
+            Platform WebGIS terdepan untuk kebutuhan industri modern. Memberikan solusi komprehensif untuk monitoring, analisis, dan visualisasi data geografis dengan teknologi terkini.
+          </p>
+          <div class="social-icons">
+            <a href="https://www.linkedin.com/in/salsa-alifia-aurell-12b050317" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="https://github.com/SalsaAlifia" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#eksplorasi">Pengenalan WebGIS</a></li>
+            <li><a href="#map-section">Peta Interaktif</a></li>
+            <li><a href="#informasi">Informasi Platform</a></li>
+            <li><a href="#footer-section">Tentang Pembuat</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-contact">
+          <h4>Kontak</h4>
+          <p><i class="fas fa-envelope"></i> info@indusphere.com</p>
+          <p><i class="fas fa-phone"></i> +62 8888 600 742</p>
+          <p><i class="fas fa-map-marker-alt"></i> Jl. Dewi Sartika No. 123<br>Kota Sukabumi, Indonesia</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="footer-bottom">
+        <div class="creator-info">
+          <h4>Tentang Pembuat</h4>
+          <p class="label orange">Lead Developer</p>
+          <p class="name">Salsa Alifia Aurell</p>
+          <p class="role">Full Stack GIS Developer</p>
+          <p class="desc">Mahasiswa Sains Informasi Geografi UPI, fokus pada SIG, Pemetaan, Penginderaan Jauh, dan Survei Pemetaan.</p>
+        </div>
+
+        <div class="tech-stack">
+          <p class="label orange">Tech Stack</p>
+          <div class="stack-list">
+            <span>JavaScript</span>
+            <span>Leaflet</span>
+            <span>HTML/CSS</span>
+            <span>GeoJSON</span>
+          </div>
+          <img src="./asset/Data_Spasial/salsa2.jpg" alt="Foto Pembuat" class="pembuat-foto">
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+  <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+  <script src="https://balladaniel.github.io/leaflet-dataclassification/leaflet-dataclassification.js"></script>
+  
+  <script>
+// Inisialisasi peta
+const map = L.map('map').setView([-6.9194, 106.9272], 13);
+
+
+// Basemap
+const basemapOSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+const baseMapGoogle = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+  maxZoom: 20, subdomains: ['mt0','mt1','mt2','mt3'],
+  attribution: 'Map by Google'
+});
+
+const baseMapSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+  maxZoom: 20, subdomains: ['mt0','mt1','mt2','mt3'],
+  attribution: 'Satellite by Google'
+});
+
+// Tombol Home
+const home = { lat: -6.9194, lng: 106.9272, zoom: 13 };
+const homeControl = L.control({ position: 'topleft' });
+homeControl.onAdd = function(map) {
+  const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+  div.innerHTML = '🏠';
+  div.style = 'background:white;width:30px;height:30px;text-align:center;line-height:30px;cursor:pointer;';
+  div.title = 'Kembali ke Home';
+  div.onclick = () => map.setView([home.lat, home.lng], home.zoom);
+  return div;
+};
+homeControl.addTo(map);
+
+// Lokasi Pengguna
+L.control.locate({
+  position: 'topleft',
+  flyTo: true,
+  strings: { title: "Temukan lokasiku" },
+  locateOptions: { enableHighAccuracy: true }
+}).addTo(map);
+
+// slide
+document.addEventListener("DOMContentLoaded", () => {
+  const links = document.querySelectorAll(".hero-btn");
+  const sections = document.querySelectorAll("section");
+
+  function showSection(id) {
+    sections.forEach((section) => {
+      section.classList.remove("active");
+    });
+    const target = document.querySelector(id);
+    if (target) {
+      target.classList.add("active");
+    }
+  }
+
+  // Default tampilkan hero-section saat awal
+  showSection("#hero-section");
+
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("href");
+      showSection(targetId);
+    });
+  });
+});
+
+
+
+
+// ======================== LAYERS =======================
+
+/// Style simbol titik
+const industriIcon = L.icon({
+  iconUrl: "./asset/industri.jpg", // Pastikan path dan nama file benar
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+// LayerGroup untuk pabrik
+const pabrikPT = new L.LayerGroup();
+
+// Ambil dan tampilkan data pabrik
+fetch("./asset/pabrik4.json")
+  .then(res => res.json())
+  .then(data => {
+    const geojson = {
+      type: "FeatureCollection",
+      features: data.features.map(f => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [f.geometry.x, f.geometry.y]
+        },
+        properties: f.attributes
+      }))
+    };
+
+    L.geoJSON(geojson, {
+      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: industriIcon }),
+onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        layer.bindPopup(`
+          <b>Nama Pabrik:</b> ${p.NAMA || '-'}<br>
+          <b>Klasifikasi:</b> ${p.Klasifikasi || '-'}<br>
+          <b>Jenis:</b> ${p.Jenis || '-'}<br>
+          <b>Alamat:</b> ${p.ALAMAT || '-'}<br>
+          <b>Kecamatan:</b> ${p.KECAMATAN || '-'}<br>
+          <b>Catatan Pencemaran:</b> ${p.Catatan_Pencemaran || '-'}
+        `);
+      }
+    }).addTo(pabrikPT);
+
+    pabrikPT.addTo(map);
+  });
+
+
+// =======================
+// 1. Batas Administrasi
+// =======================
+const adminKecamatanAR = new L.LayerGroup();
+
+$.getJSON("./asset/Data_Spasial/ADMSMI.json", function (data) {
+  const geojsonConverted = {
+    type: "FeatureCollection",
+    features: data.features.map(f => ({
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: f.geometry.rings
+      },
+      properties: f.attributes
+    }))
+  };
+
+  const adminLayer = L.geoJSON(geojsonConverted, {
+    style: {
+      color: "red",
+      weight: 2,
+      opacity: 1,
+      dashArray: '3,3,20,3',
+      lineJoin: 'round'
+    },
+   onEachFeature: function (feature, layer) {
+  const nama = feature.properties?.WADMKC || "Tidak diketahui";
+  layer.bindPopup(`<b>Wilayah:</b> ${nama}`);
+}
+
+           }
+    ).addTo(adminKecamatanAR);
+
+    adminKecamatanAR.addTo(map);
+  });
+
+// =======================
+// 2. Sungai
+// =======================
+const sungaiLN = new L.LayerGroup();
+const symbologySungai = {
+  color: "#0077ff", weight: 2, opacity: 0.9
+};
+
+$.getJSON("./asset/Data_Spasial/LN_Sungai.json", function (data) {
+  const geojsonConverted = {
+    type: "FeatureCollection",
+    features: data.features.map(f => ({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: f.geometry.paths[0].map(c => [c[0], c[1]])
+      },
+      properties: f.attributes
+    }))
+  };
+  L.geoJSON(geojsonConverted, { style: symbologySungai }).addTo(sungaiLN);
+  sungaiLN.addTo(map);
+});
+
+// =======================
+// 3. Jalan
+// =======================
+const jalanLN = new L.LayerGroup();
+const symbologyJalan = {
+  color: "#808080", weight: 2, opacity: 0.8
+};
+
+$.getJSON("./asset/Data_Spasial/LN_Jalan.json", function (data) {
+  const geojson = {
+    type: "FeatureCollection",
+    features: data.features.map(f => ({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: f.geometry.paths[0].map(c => [c[0], c[1]])
+      },
+      properties: f.attributes
+    }))
+  };
+  L.geoJSON(geojson, { style: symbologyJalan }).addTo(jalanLN);
+  jalanLN.addTo(map);
+});
+
+// =======================
+// 4. Pemukiman
+// =======================
+const pemukimanAR = new L.LayerGroup();
+
+$.getJSON("./asset/Data_Spasial/pemukiman.json", function (data) {
+  const geojsonConverted = {
+    type: "FeatureCollection",
+    features: data.features.map(f => ({
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: f.geometry.rings
+      },
+      properties: f.attributes
+    }))
+  };
+
+  L.geoJSON(geojsonConverted, {
+    style: {
+      color: "yellow",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.4,
+      dashArray: '3,3,20,3',
+      lineJoin: 'round'
+   },
+onEachFeature: function (feature, layer) {
+  const nama = feature.properties?.NAMOBJ || "Tanpa Nama";
+  layer.bindPopup(`<b>Pemukiman:</b> ${nama}`);
+}
+
+  }).addTo(pemukimanAR);
+
+  pemukimanAR.addTo(map);
+});
+// buffer
+// =======================
+// 6. Buffer
+// =======================
+const bufferLayer = new L.LayerGroup().addTo(map);
+
+// Fungsi warna berdasarkan jarak buffer
+function getBufferColor(distance) {
+  return distance > 10000 ? "#3ed34a" :
+         distance > 5500  ? "#3ead3e" :
+         distance > 3500  ? "#fffb1f" :
+         distance > 1500  ? "#f5a021f2" :
+                            "#cc2d2df2"; // fallback untuk jarak kecil
+}
+
+// Ambil data buffer dan konversi ke GeoJSON
+fetch("./asset/Data_Spasial/buffer.json")
+  .then(res => {
+    if (!res.ok) throw new Error("Gagal fetch buffer.json");
+    return res.json();
+  })
+  .then(data => {
+    const geojson = {
+      type: "FeatureCollection",
+      features: data.features.map(f => {
+        const coords = f.geometry.rings;
+        const geometry = coords.length > 1
+          ? { type: "MultiPolygon", coordinates: [coords] }
+          : { type: "Polygon", coordinates: coords };
+
+        return {
+          type: "Feature",
+          geometry: geometry,
+          properties: f.attributes
+        };
+      })
+    };
+
+    const bufferGeoJSON = L.geoJSON(geojson, {
+      style: feature => ({
+        color: getBufferColor(feature.properties.distance),
+        weight: 2,
+        fillOpacity: 0.5
+      }),
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        layer.bindPopup(`
+          <b>OBJECTID:</b> ${p.OBJECTID || "-"}<br>
+          <b>Jarak Buffer:</b> ${p.distance || "-"} meter
+        `);
+      }
+    }).addTo(bufferLayer);
+
+    map.fitBounds(bufferGeoJSON.getBounds());
+  })
+  .catch(err => console.error("Gagal memuat buffer:", err));
+
+
+// =======================
+// 7. Peta Choropleth Penduduk
+// =======================
+const layerPenduduk = new L.LayerGroup();
+let geojsonPenduduk; // Simpan agar bisa di-reset stylenya saat interaksi
+
+// Fungsi warna berdasarkan jumlah penduduk
+function getColor(d) {
+  return d > 100000 ? '#800026' :
+         d > 75000  ? '#BD0026' :
+         d > 50000  ? '#E31A1C' :
+         d > 30000  ? '#FC4E2A' :
+         d > 20000  ? '#FD8D3C' :
+         d > 10000  ? '#FEB24C' :
+         d > 0      ? '#FED976' :
+                      '#FFEDA0';
+}
+
+// Style tiap fitur
+function stylePenduduk(feature) {
+  return {
+    fillColor: getColor(feature.properties["penduduk.csv.jumlah penduduk"]),
+    weight: 1,
+    opacity: 1,
+    color: 'white',
+    dashArray: '3',
+    fillOpacity: 0.7
+  };
+}
+
+// Interaksi hover highlight
+function highlightFeature(e) {
+  const layer = e.target;
+  layer.setStyle({
+    weight: 3,
+    color: '#666',
+    dashArray: '',
+    fillOpacity: 0.7
+  });
+  layer.bringToFront();
+}
+
+function resetHighlight(e) {
+  geojsonPenduduk.resetStyle(e.target);
+}
+
+function onEachFeaturePenduduk(feature, layer) {
+  const props = feature.properties;
+layer.bindPopup(
+  `<b>Kecamatan:</b> ${props["penduduk.csv.WADMKC"]}<br>
+   <b>Jumlah Penduduk:</b> ${props["penduduk.csv.jumlah penduduk"]}`
+);
+
+  ;
+  layer.on({
+    mouseover: highlightFeature,
+    mouseout: resetHighlight
+  });
+}
+
+// Ambil dan tampilkan data penduduk
+fetch("./asset/Data_Spasial/penduduk.json")
+  .then(res => res.json())
+  .then(data => {
+    const geojson = {
+      type: "FeatureCollection",
+      features: data.features.map(f => ({
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: f.geometry.rings
+        },
+        properties: f.attributes
+      }))
+    };
+
+    geojsonPenduduk = L.geoJSON(geojson, {
+      style: stylePenduduk,
+      onEachFeature: onEachFeaturePenduduk
+    });
+
+    geojsonPenduduk.addTo(layerPenduduk);
+    layerPenduduk.addTo(map);
+  });
+
+// ========================
+// Legend dan Control Panel
+// ========================
+const legend = L.control({ position: "bottomright" });
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "info legend");
+  div.innerHTML += '<h4>Legenda</h4>';
+  div.innerHTML += '<i style="background:#9dfc03; width:10px; height:10px; display:inline-block; margin-right:5px;"></i>Pabrik<br>';
+  div.innerHTML += '<i style="background:#0077ff; width:10px; height:2px; display:inline-block; margin-right:5px;"></i>Sungai<br>';
+  div.innerHTML += '<i style="background:#808080; width:10px; height:2px; display:inline-block; margin-right:5px;"></i>Jalan<br>';
+  div.innerHTML += '<i style="background:yellow; width:10px; height:10px; display:inline-block; margin-right:5px; border:1px solid black;"></i>Pemukiman<br>';
+  
+  div.innerHTML += '<hr><b>Zona Buffer</b><br>';
+  div.innerHTML += '<i style="background:#cc2d2df2; width:10px; height:10px; display:inline-block; margin-right:5px;"></i> 0–1500 m<br>';
+  div.innerHTML += '<i style="background:#f5a021f2; width:10px; height:10px; display:inline-block; margin-right:5px;"></i> 1501–3500 m<br>';
+  div.innerHTML += '<i style="background:#fffb1f; width:10px; height:10px; display:inline-block; margin-right:5px;"></i> 3501–5500 m<br>';
+  div.innerHTML += '<i style="background:#3ead3e; width:10px; height:10px; display:inline-block; margin-right:5px;"></i> > 5500 m';
+
+  return div;
+};
+legend.addTo(map);
+
+const overlayMaps = {
+  "Pabrik": pabrikPT,
+  "Sungai": sungaiLN,
+  "Jalan": jalanLN,
+  "Pemukiman": pemukimanAR,
+  "Zona Buffer": bufferLayer,
+  "Kepadatan Penduduk": layerPenduduk
+};
+
+const baseMaps = {
+  "OpenStreetMap": basemapOSM,
+  "Google Maps": baseMapGoogle,
+  "Google Satellite": baseMapSatellite
+};
+
+L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+
+  </script>
+</body>
+  <!-- Custom JS -->
+  <script src="peta.js"></script>
+</html>
